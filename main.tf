@@ -23,17 +23,17 @@ resource "aws_instance" "ec2" {
   }
 
   provisioner "file" {
-  source      = "Haris"
-  destination = "/home/ubuntu"
+    source      = "html"
+    destination = "/home/ubuntu"
 
-  connection {
-    type        = "ssh"
-    host        = aws_instance.ec2.public_ip
-    user        = "ubuntu"
-    private_key = file("/home/haris/PAT/my-ec2-key.pem") // the path to where the key is stored relative to this file
+    connection {
+        type        = "ssh"
+        host        = aws_instance.ec2.public_ip
+        user        = "ubuntu"
+        private_key = file("/home/haris/PAT/my-ec2-key.pem") // the path to where the key is stored relative to this file
+    }
   }
-}
-
+  user_data = file("${path.module}/init_webserver.sh")
 }
 
 resource "aws_default_vpc" "default" {
@@ -68,6 +68,17 @@ resource "aws_security_group" "main" {
     security_groups = []
     self = false
     to_port = 22
+  }, 
+   {
+    cidr_blocks = [ "0.0.0.0/0", ]
+    description = ""
+    from_port = 80
+    ipv6_cidr_blocks = []
+    prefix_list_ids = []
+    protocol = "tcp"
+    security_groups = []
+    self = false
+    to_port = 80
   } ]
 }
 
